@@ -17,8 +17,9 @@
 
 #define LOG_TAG "SysPropJNI"
 
-#include <utility>
+#include <cstring>
 #include <optional>
+#include <utility>
 
 #include "android-base/logging.h"
 #include "android-base/parsebool.h"
@@ -70,6 +71,17 @@ void ReadProperty(JNIEnv* env, jstring keyJ, Functor&& functor)
 jstring SystemProperties_getSS(JNIEnv* env, jclass clazz, jstring keyJ,
                                jstring defJ)
 {
+    // Spoof the Java getter only; the underlying boot properties remain unchanged.
+    ScopedUtfChars key(env, keyJ);
+    if (key.c_str() != nullptr) {
+        if (std::strcmp(key.c_str(), "ro.boot.flash.locked") == 0) {
+            return env->NewStringUTF("1");
+        }
+        if (std::strcmp(key.c_str(), "ro.boot.verifiedbootstate") == 0) {
+            return env->NewStringUTF("green");
+        }
+    }
+
     jstring ret = defJ;
     ReadProperty(env, keyJ, [&](const char* value) {
         if (value[0]) {

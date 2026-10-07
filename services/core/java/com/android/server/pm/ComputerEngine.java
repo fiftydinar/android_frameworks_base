@@ -1485,11 +1485,8 @@ public class ComputerEngine implements Computer {
 
     public static native boolean isDebuggable();
 
+    // Keep the restricted microG signature mapping enabled in user builds too.
     public static boolean isMicrogSigned(AndroidPackage p) {
-        if (!isDebuggable()) {
-            return false;
-        }
-
         // Allowlist the following apps:
         // * com.android.vending - microG Companion
         // * com.google.android.gms - microG Services
